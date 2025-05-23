@@ -1,0 +1,1 @@
+cd monitoring/node-exporter/node_exporter-1.7.0.darwin-amd64 && ./node_exporter --web.listen-address=:9100

@@ -1,0 +1,41 @@
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'node-exporter'
+          scrape_interval: 10s
+          static_configs:
+            - targets: ['localhost:9100']
+  otlp:
+    protocols:
+      grpc:
+        endpoint: localhost:4317
+      http:
+        endpoint: localhost:4318
+
+processors:
+  batch:
+
+exporters:
+  # logging:
+  #   loglevel: debug
+  prometheus:
+    endpoint: "localhost:8889"
+  # prometheusremotewrite:
+  #   endpoint: "http://localhost:9009/api/v1/push"
+  #   headers:
+  #     X-Scope-OrgID: "demo"
+  #   resource_to_telemetry_conversion:
+  #     enabled: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: 
+        - prometheus
+        - otlp
+      processors: [batch]
+      #exporters: [logging, prometheus, prometheusremotewrite] 
+      exporters: 
+        #- logging
+        - prometheus

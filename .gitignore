@@ -1,0 +1,64 @@
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.dat
+*.db
+*.sqlite
+*.sqlite3
+*.pyc
+*.pyo
+*.pyd
+*.o
+*.a
+*.obj
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Monitoring binaries
+monitoring/otel-collector/otelcol-contrib
+monitoring/node-exporter/node_exporter-1.7.0.darwin-amd64/node_exporter 
