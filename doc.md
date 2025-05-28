@@ -2,9 +2,12 @@
 
 ## 1. Objectives
 
-- Assess the resource usage and efficiency of the OTEL Collector when collecting metrics via both push and pull methods, simultaneously.
-- Identify any bottlenecks, dropped metrics, or performance degradation under load.
-
+Objectives
+To explain the differences between push and pull modes for metric collection in observability systems.
+To demonstrate how OpenTelemetry Collector supports both push and pull modes for collecting metrics.
+To show, through configuration and practical examples, that OpenTelemetry Collector can collect metrics from both modes simultaneously within a single instance.
+To compare the advantages and use cases of each mode, highlighting scenarios where simultaneous use is beneficial.
+To provide guidance for organizations seeking to unify diverse metric sources (modern and legacy) using OpenTelemetry Collector.
 ---
 
 ## 2. Metrics to Measure
