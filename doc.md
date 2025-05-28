@@ -94,3 +94,5 @@ To provide guidance for organizations seeking to unify diverse metric sources (m
 
 - _Summarize optimal configuration and resource requirements for your use case._
 - _Suggest monitoring thresholds and scaling strategies._
+
+OpenTelemetry Collector is a highly flexible and powerful tool for observability, capable of collecting metrics using both push and pull modes simultaneously within a single instance. By supporting multiple receivers in the same pipeline, the collector enables organizations to integrate modern, cloud-native applications that push metrics (such as via OTLP), as well as legacy or third-party systems that expose metrics endpoints for scraping (such as via Prometheus). This dual capability simplifies observability architectures, reduces operational complexity, and allows for a unified approach to monitoring diverse environments
