@@ -1,0 +1,63 @@
+global:
+  extraVolumes:
+    - name: tls-certs
+      secret:
+        secretName: mimir-tls-certs
+  extraVolumeMounts:
+    - name: tls-certs
+      mountPath: /etc/mimir/tls
+      readOnly: true
+
+mimir:
+  config: |
+    server:
+      http_tls_config:
+        cert_file: /etc/mimir/tls/tls.crt
+        key_file: /etc/mimir/tls/tls.key
+        client_ca_file: /etc/mimir/tls/ca.crt
+        client_auth_type: RequireAndVerifyClientCert
+
+    # Memberlist configuration for service discovery
+    memberlist:
+      bind_addr: "0.0.0.0"
+      bind_port: 7946
+      tls_enabled: true
+      tls_cert_file: /etc/mimir/tls/tls.crt
+      tls_key_file: /etc/mimir/tls/tls.key
+      tls_ca_file: /etc/mimir/tls/ca.crt
+
+    # Client configurations to use HTTPS
+    distributor_client:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_file: /etc/mimir/tls/tls.crt
+        tls_key_file: /etc/mimir/tls/tls.key
+        tls_ca_file: /etc/mimir/tls/ca.crt
+
+    ingester_client:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_file: /etc/mimir/tls/tls.crt
+        tls_key_file: /etc/mimir/tls/tls.key
+        tls_ca_file: /etc/mimir/tls/ca.crt
+
+    ruler_client:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_file: /etc/mimir/tls/tls.crt
+        tls_key_file: /etc/mimir/tls/tls.key
+        tls_ca_file: /etc/mimir/tls/ca.crt
+
+    store_gateway_client:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_file: /etc/mimir/tls/tls.crt
+        tls_key_file: /etc/mimir/tls/tls.key
+        tls_ca_file: /etc/mimir/tls/ca.crt
+
+    compactor_client:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_file: /etc/mimir/tls/tls.crt
+        tls_key_file: /etc/mimir/tls/tls.key
+        tls_ca_file: /etc/mimir/tls/ca.crt
