@@ -1,0 +1,214 @@
+global:
+  extraVolumes:
+    - name: tls-certs
+      secret:
+        secretName: mimir-tls-certs
+  extraVolumeMounts:
+    - name: tls-certs
+      mountPath: /etc/mimir/tls
+      readOnly: true
+gateway:
+  enabled: false
+nginx:
+  enabled: true
+  service:
+    type: ClusterIP
+    port: 8080
+    extraPorts:
+      - name: https-metric
+        port: 8443
+        targetPort: https-metric
+        protocol: TCP
+  containerSecurityContext:
+    runAsUser: 101
+    runAsGroup: 101
+  extraVolumeMounts:
+    - name: tls-certs
+      mountPath: /etc/nginx/tls
+      readOnly: true
+distributor:
+  replicas: 1
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+ingester:
+  replicas: 2
+  zoneAwareReplication:
+    enabled: true
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+  extraArgs:
+    ingester.ring.heartbeat-period: 5s
+    ingester.ring.instance-addr: "0.0.0.0"
+    ingester.ring.instance-port: 9095
+    ingester.ring.instance-id: "${POD_NAME}"
+    ingester.ring.num-tokens: 512
+    ingester.ring.zone-awareness-enabled: "false"
+    ingester.ring.replication-factor: 2
+    ingester.ring.heartbeat-timeout: 1m
+    ingester.ring.observe-period: 30s
+compactor:
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+ruler:
+  readinessProbe:
+    httpGet: 
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+querier:
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+query_frontend:
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+query_scheduler:
+  # enabled: false
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+store_gateway:
+  zoneAwareReplication:
+    enabled: false
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+      scheme: HTTPS
+    initialDelaySeconds: 45
+
+mimir:
+  structuredConfig:
+    common:
+      storage:
+        backend: s3
+        s3:
+          bucket_name: "wa-develop-mimirblock"
+          endpoint: "s3.us-east-1.amazonaws.com"
+          access_key_id: "" # This is a secret injected via an environment variable
+          secret_access_key: "" # This is a secret injected via an environment variable
+    alertmanager_storage:
+      s3:
+        bucket_name: "wa-develop-mimiralertmanager"
+        endpoint: "s3.us-east-1.amazonaws.com"
+        access_key_id: "" # This is a secret injected via an environment variable
+        secret_access_key: "" # This is a secret injected via an environment variable
+        http:
+          insecure_skip_verify: true
+        region: "us-east-1"
+    blocks_storage:
+      s3:
+        bucket_name: "wa-develop-mimirblock"
+        endpoint: "s3.us-east-1.amazonaws.com"
+        access_key_id: "" # This is a secret injected via an environment variable
+        secret_access_key: "" # This is a secret injected via an environment variable
+        http:
+          insecure_skip_verify: true
+        region: "us-east-1"
+    ruler_storage:
+      s3:
+        bucket_name: "wa-develop-mimirruler"
+        endpoint: "s3.us-east-1.amazonaws.com"
+        access_key_id: "" # This is a secret injected via an environment variable
+        secret_access_key: "" # This is a secret injected via an environment variable
+        http:
+          insecure_skip_verify: true
+        region: "us-east-1"
+    server:
+      http_tls_config:
+        cert_file: /etc/mimir/tls/tls.crt
+        key_file: /etc/mimir/tls/tls.key
+        # client_auth_type: RequireAndVerifyClientCert
+      grpc_tls_config:
+        cert_file: /etc/mimir/tls/tls.crt
+        key_file: /etc/mimir/tls/tls.key
+        # client_auth_type: RequireAndVerifyClientCert
+    memberlist:
+      tls_enabled: true
+      tls_cert_path: /etc/mimir/tls/tls.crt
+      tls_key_path: /etc/mimir/tls/tls.key
+      tls_ca_path: /etc/mimir/tls/ca.crt
+      join_members:
+        - mimir-gossip-ring.mimir.svc.cluster.local
+      tls_insecure_skip_verify: true
+      bind_port: 7946
+      advertise_port: 7946
+    ingester_client:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_path: /etc/mimir/tls/tls.crt
+        tls_key_path: /etc/mimir/tls/tls.key
+        tls_server_name: mimir-ingester.mimir.svc.cluster.local
+    frontend_worker:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_path: /etc/mimir/tls/tls.crt
+        tls_key_path: /etc/mimir/tls/tls.key
+        tls_ca_path: /etc/mimir/tls/ca.crt
+      # scheduler_address: mimir-query-scheduler:9095
+    ruler:
+      query_frontend:
+        grpc_client_config:
+          tls_enabled: true
+          tls_cert_path: /etc/mimir/tls/tls.crt
+          tls_key_path: /etc/mimir/tls/tls.key
+      ruler_client:
+        tls_enabled: true
+        tls_cert_path: /etc/mimir/tls/tls.crt
+        tls_key_path: /etc/mimir/tls/tls.key
+      alertmanager_client:
+        tls_enabled: true
+        tls_cert_path: /etc/mimir/tls/tls.crt
+        tls_key_path: /etc/mimir/tls/tls.key
+    frontend:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_path: /etc/mimir/tls/tls.crt
+        tls_key_path: /etc/mimir/tls/tls.key
+        tls_ca_path: /etc/mimir/tls/ca.crt
+      # scheduler_address: mimir-query-scheduler:9095
+    querier:
+      store_gateway_client:
+        tls_enabled: true
+        tls_cert_path: /etc/mimir/tls/tls.crt
+        tls_key_path: /etc/mimir/tls/tls.key
+        tls_ca_path: /etc/mimir/tls/ca.crt
+        tls_server_name: mimir-store-gateway
+    query_scheduler:
+      grpc_client_config:
+        tls_enabled: true
+        tls_cert_path: /etc/mimir/tls/tls.crt
+        tls_key_path: /etc/mimir/tls/tls.key
+        tls_ca_path: /etc/mimir/tls/ca.crt
+
+backoff_config:
+  tls_enabled: true
+  tls_cert_path: /etc/mimir/tls/tls.crt
+  tls_key_path: /etc/mimir/tls/tls.key
+
+overrides_exporter:
+  enabled: false
+ 
