@@ -1,0 +1,17 @@
+FROM alpine:3.20
+
+# Install curl and busybox (for shell)
+RUN apk add --no-cache curl busybox
+
+# Download and install Grafana Mimir (latest release, linux-amd64)
+RUN curl -fLo /usr/local/bin/mimir https://github.com/grafana/mimir/releases/latest/download/mimir-linux-amd64 \
+    && chmod +x /usr/local/bin/mimir
+
+# (Optional) Add a default config file
+# COPY my-mimir-config.yaml /etc/mimir/mimir.yaml
+
+# Expose the default HTTP, gRPC, and custom ports
+EXPOSE  8080 9095
+
+# Set the default command to run Mimir (can be overridden)
+CMD ["/usr/local/bin/mimir", "--help"] 
