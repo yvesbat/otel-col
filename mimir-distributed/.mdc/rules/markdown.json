@@ -1,0 +1,47 @@
+{
+    "description": "Markdown documentation rules",
+    "globs": ["**/*.md"],
+    "alwaysApply": true,
+    "rules": [
+        {
+            "name": "header_structure",
+            "description": "All markdown files must have a level 1 header (#) at the top"
+        },
+        {
+            "name": "code_blocks",
+            "description": "Code blocks must specify language for syntax highlighting"
+        },
+        {
+            "name": "link_format",
+            "description": "Links must use reference-style format for better readability"
+        },
+        {
+            "name": "list_format",
+            "description": "Lists must use consistent indentation and bullet points"
+        },
+        {
+            "name": "table_format",
+            "description": "Tables must have header row and alignment specified"
+        },
+        {
+            "name": "image_alt",
+            "description": "All images must have alt text for accessibility"
+        },
+        {
+            "name": "heading_hierarchy",
+            "description": "Headings must follow proper hierarchy (no skipping levels)"
+        },
+        {
+            "name": "line_length",
+            "description": "Lines should not exceed 100 characters"
+        },
+        {
+            "name": "list_spacing",
+            "description": "Lists must have blank lines before and after"
+        },
+        {
+            "name": "emphasis_consistency",
+            "description": "Use consistent emphasis style (prefer **bold** and *italic*)"
+        }
+    ]
+} 

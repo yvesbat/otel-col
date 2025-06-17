@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mimir.fullname" . }}-traefik
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "mimir.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: traefik
+spec:
+  type: {{ .Values.traefik.service.type | default "ClusterIP" }}
+  ports:
+    - name: web
+      port: {{ .Values.traefik.service.port | default 80 }}
+      targetPort: web
+      protocol: TCP
+    - name: websecure
+      port: {{ .Values.traefik.service.securePort | default 443 }}
+      targetPort: websecure
+      protocol: TCP
+    - name: admin
+      port: {{ .Values.traefik.service.adminPort | default 8081 }}
+      targetPort: admin
+      protocol: TCP
+    - name: metrics
+      port: {{ .Values.traefik.service.metricsPort | default 8082 }}
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "mimir.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: traefik 

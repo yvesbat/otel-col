@@ -1,0 +1,34 @@
+{
+    "editor": {
+        "formatOnSave": true,
+        "tabSize": 2,
+        "insertSpaces": true,
+        "wordWrap": "on"
+    },
+    "files": {
+        "exclude": {
+            "**/.git": true,
+            "**/node_modules": true,
+            "**/dist": true
+        }
+    },
+    "search": {
+        "exclude": {
+            "**/node_modules": true,
+            "**/dist": true
+        }
+    },
+    "terminal": {
+        "integrated": {
+            "shell": {
+                "osx": "/bin/zsh"
+            }
+        }
+    },
+    "rules": {
+        "yaml": "./rules/yaml.json",
+        "helm": "./rules/helm.json",
+        "kubernetes": "./rules/kubernetes.json",
+        "guidelines": "./rules/guidelines.json"
+    }
+} 

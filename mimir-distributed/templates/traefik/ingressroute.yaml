@@ -1,0 +1,95 @@
+{{- if .Values.traefik.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mimir-components
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "mimir.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/mimir-querier`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-querier
+          port: {{ .Values.mimir.serverHttpListenPort | default 8080 }}
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-distributor`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-distributor
+          port: {{ .Values.mimir.serverHttpListenPort | default 8080 }}
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-ingester`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-ingester-headless
+          port: {{ .Values.mimir.serverHttpListenPort | default 8080 }}
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-compactor`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-compactor
+          port: {{ .Values.mimir.serverHttpListenPort | default 8080 }}
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-store-gateway`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-store-gateway
+          port: {{ .Values.mimir.serverHttpListenPort | default 8080 }}
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-ruler`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-ruler
+          port: {{ .Values.mimir.serverHttpListenPort | default 8080 }}
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-alertmanager`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-alertmanager
+          port: {{ .Values.mimir.serverHttpListenPort | default 8080 }}
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-ingester-zone-a`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-ingester-zone-a
+          port: http-metrics
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-ingester-zone-b`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-ingester-zone-b
+          port: http-metrics
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+    - match: PathPrefix(`/mimir-ingester-zone-c`)
+      kind: Rule
+      services:
+        - name: {{ include "mimir.fullname" . }}-ingester-zone-c
+          port: http-metrics
+      middlewares:
+        - name: mimir-stripprefix
+          namespace: {{ .Release.Namespace }}
+{{- end }} 

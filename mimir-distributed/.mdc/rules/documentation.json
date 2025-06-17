@@ -1,0 +1,47 @@
+{
+    "description": "Documentation standards and rules",
+    "globs": ["**/*.md", "**/*.yaml", "**/*.yml"],
+    "alwaysApply": true,
+    "rules": [
+        {
+            "name": "readme_required",
+            "description": "Every directory must have a README.md file"
+        },
+        {
+            "name": "changelog_format",
+            "description": "CHANGELOG.md must follow Keep a Changelog format"
+        },
+        {
+            "name": "api_documentation",
+            "description": "All API endpoints must be documented with examples"
+        },
+        {
+            "name": "code_comments",
+            "description": "Complex code sections must have explanatory comments"
+        },
+        {
+            "name": "version_documentation",
+            "description": "Version changes must be documented in CHANGELOG.md"
+        },
+        {
+            "name": "configuration_docs",
+            "description": "All configuration options must be documented"
+        },
+        {
+            "name": "example_required",
+            "description": "Documentation must include practical examples"
+        },
+        {
+            "name": "troubleshooting_section",
+            "description": "Documentation must include troubleshooting section"
+        },
+        {
+            "name": "prerequisites",
+            "description": "Documentation must list all prerequisites"
+        },
+        {
+            "name": "installation_steps",
+            "description": "Documentation must include clear installation steps"
+        }
+    ]
+} 

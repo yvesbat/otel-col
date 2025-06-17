@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mimir-components
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    # Optional: Add any Traefik-specific annotations here if needed
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /mimir-ingester
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-ingester
+                port:
+                  number: 80
+          - path: /mimir-distributor
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-distributor
+                port:
+                  number: 80
+          - path: /mimir-querier
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-querier
+                port:
+                  number: 80
+          - path: /mimir-compactor
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-compactor
+                port:
+                  number: 80
+          - path: /mimir-store-gateway
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-store-gateway
+                port:
+                  number: 80
+          - path: /mimir-ruler
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-ruler
+                port:
+                  number: 80
+          - path: /mimir-alertmanager
+            pathType: Prefix
+            backend:
+              service:
+                name: mimir-alertmanager
+                port:
+                  number: 80 

@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: metrics-generator
+  namespace: mimir
+  labels:
+    app: metrics-generator
+spec:
+  containers:
+  - name: metrics-generator
+    image: prom/prometheus:v2.45.0
+    args:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+      - --web.enable-lifecycle
+    ports:
+    - containerPort: 9090
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/prometheus
+  volumes:
+  - name: config-volume
+    configMap:
+      name: prometheus 

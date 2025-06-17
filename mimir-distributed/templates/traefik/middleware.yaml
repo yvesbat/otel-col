@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: mimir-stripprefix
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "mimir.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: traefik
+spec:
+  stripPrefix:
+    prefixes:
+      - /mimir-ingester-zone-a
+      - /mimir-ingester-zone-b
+      - /mimir-ingester-zone-c
+      - /mimir-distributor
+      - /mimir-querier
+      - /mimir-compactor
+      - /mimir-store-gateway
+      - /mimir-ruler
+      - /mimir-alertmanager 

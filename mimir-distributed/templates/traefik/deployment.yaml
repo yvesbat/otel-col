@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mimir.fullname" . }}-traefik
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "mimir.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: traefik
+spec:
+  replicas: {{ .Values.traefik.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "mimir.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: traefik
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "mimir.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: traefik
+    spec:
+      containers:
+        - name: traefik
+          image: "{{ .Values.traefik.image.repository }}:{{ .Values.traefik.image.tag | default .Chart.AppVersion }}"
+          args:
+            - --configfile=/etc/traefik/traefik.yaml
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP
+            - name: websecure
+              containerPort: 443
+              protocol: TCP
+            - name: admin
+              containerPort: 8081
+              protocol: TCP
+            - name: metrics
+              containerPort: 8082
+              protocol: TCP
+          volumeMounts:
+            - name: traefik-config
+              mountPath: /etc/traefik
+            - name: traefik-logs
+              mountPath: /var/log/traefik
+          resources:
+            {{- toYaml .Values.traefik.resources | nindent 12 }}
+      volumes:
+        - name: traefik-config
+          configMap:
+            name: {{ include "mimir.fullname" . }}-traefik-config
+        - name: traefik-logs
+          emptyDir: {} 
