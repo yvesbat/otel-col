@@ -1,0 +1,25 @@
+http:
+  routers:
+    mimir-health:
+      rule: "Path(`/ready`)"
+      service: mimir
+      entryPoints:
+        - health
+
+  services:
+    mimir:
+      loadBalancer:
+        servers:
+          - url: "https://mimir.internal:8080"
+            serverName: "expected-servername-for-sni"  # SNI override
+        passHostHeader: false
+      tls:
+        # Configure TLS options here:
+        # For mTLS client authentication, use clientAuth.clientCert to specify cert/key
+        clientAuth:
+          clientCert:
+            certFile: /etc/mimir/tls/client.crt
+            keyFile: /etc/mimir/tls/client.key
+        # trusted CA files to verify the server cert presented by mimir:
+        caFiles:
+          - /etc/mimir/tls/ca.crt
