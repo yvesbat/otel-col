@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dual-sidecar-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dual-sidecar-demo
+  template:
+    metadata:
+      labels:
+        app: dual-sidecar-demo
+    spec:
+      containers:
+        - name: app
+          image: nginx
+          readinessProbe:
+            httpGet:
+              path: /state
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+        - name: busybox-checker
+          image: busybox
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                if wget -qO- http://localhost:80/ > /dev/null; then
+                  RESPONSE="HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 2\r\n\r\nOK"
+                else
+                  RESPONSE="HTTP/1.1 503 Service Unavailable\r\nContent-Type: text/plain\r\nContent-Length: 9\r\n\r\nNOT READY"
+                fi
+                { echo -e "$RESPONSE"; } | nc -l -p 8080
+              done
+          ports:
+            - containerPort: 8080 
