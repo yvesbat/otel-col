@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-proxy-config
+  labels:
+    app: dual-sidecar-demo
+data:
+  my_proxy.conf: |
+    server {
+        listen 8080;
+        location /state {
+            proxy_pass https://localhost/;
+            proxy_ssl_trusted_certificate /etc/nginx/certs/ca.crt;
+            proxy_ssl_certificate /etc/nginx/certs/tls.crt;
+            proxy_ssl_certificate_key /etc/nginx/certs/tls.key;
+            proxy_ssl_verify on;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dual-sidecar-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dual-sidecar-demo
+  template:
+    metadata:
+      labels:
+        app: dual-sidecar-demo
+    spec:
+      containers:
+        - name: app
+          image: nginx
+          readinessProbe:
+            httpGet:
+              path: /state
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+        - name: bitnami-nginx-checker
+          image: bitnami/nginx:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: nginx-proxy-config
+              mountPath: /opt/bitnami/nginx/conf/server_blocks/my_proxy.conf
+              subPath: my_proxy.conf
+            - name: backend-mtls
+              mountPath: /etc/nginx/certs/ca.crt
+              subPath: ca.crt
+            - name: backend-mtls
+              mountPath: /etc/nginx/certs/tls.crt
+              subPath: tls.crt
+            - name: backend-mtls
+              mountPath: /etc/nginx/certs/tls.key
+              subPath: tls.key
+      volumes:
+        - name: nginx-proxy-config
+          configMap:
+            name: nginx-proxy-config
+        - name: backend-mtls
+          secret:
+            secretName: backend-mtls 
