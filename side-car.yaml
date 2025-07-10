@@ -37,3 +37,58 @@ spec:
               done
           ports:
             - containerPort: 8080 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dual-container-readiness
+spec:
+  volumes:
+    - name: shared-data
+      emptyDir: {}
+    - name: certs
+      secret:
+        secretName: my-tls-secret # Replace with your actual secret name
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        - containerPort: 8443
+      volumeMounts:
+        - name: shared-data
+          mountPath: /shared
+        - name: certs
+          mountPath: /certs
+      readinessProbe:
+        exec:
+          command:
+            - sh
+            - -c
+            - |
+              if [ -f /shared/ready-state ]; then
+                grep -q "success" /shared/ready-state
+              else
+                exit 1
+              fi
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
+    - name: readiness-sidecar
+      image: registry.access.redhat.com/ubi8/ubi:latest
+      volumeMounts:
+        - name: shared-data
+          mountPath: /shared
+        - name: certs
+          mountPath: /certs
+      command:
+        - sh
+        - -c
+        - |
+          while true; do
+            if curl --cacert /certs/ca.crt --cert /certs/tls.crt --key /certs/tls.key -k https://localhost:8443/ready; then
+              echo "success" > /shared/ready-state
+            else
+              echo "fail" > /shared/ready-state
+            fi
+            sleep 2
+          done 
