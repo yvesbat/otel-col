@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dual-sidecar-demo
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dual-sidecar-demo
+  template:
+    metadata:
+      labels:
+        app: dual-sidecar-demo
+    spec:
+      containers:
+        - name: server
+          image: python:3.9-slim
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cat <<EOF > /server.py
+              import http.server
+              import socketserver
+              class Handler(http.server.SimpleHTTPRequestHandler):
+                  def do_GET(self):
+                      if self.path == '/ready':
+                          self.send_response(200)
+                          self.end_headers()
+                          self.wfile.write(b'ready')
+                      else:
+                          super().do_GET()
+              with socketserver.TCPServer(("", 8080), Handler) as httpd:
+                  httpd.serve_forever()
+              EOF
+              python /server.py
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'cat /var/tmp/state | grep -q "^ready$"'
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: state-volume
+              mountPath: /var/tmp
+        - name: health-check
+          image: registry.access.redhat.com/ubi8/ubi
+          command:
+            - /bin/bash
+            - -c
+            - |
+              while true; do
+                if curl -sf http://localhost:8080/ready; then
+                  echo "ready" > /var/tmp/state
+                else
+                  echo "fail" > /var/tmp/state
+                fi
+                sleep 2
+              done
+          volumeMounts:
+            - name: state-volume
+              mountPath: /var/tmp
+      volumes:
+        - name: state-volume
+          emptyDir: {} 
